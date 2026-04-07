@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goa Trip Expense Splitter</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: sans-serif; background: #fafafa; }
+:root {
+  --color-text-primary: #111; --color-text-secondary: #555; --color-text-tertiary: #999;
+  --color-background-primary: #fff; --color-background-secondary: #f0f0f0;
+  --color-border-primary: #111; --color-border-secondary: #ccc; --color-border-tertiary: #eee;
+  --border-radius-md: 8px; --border-radius-lg: 12px;
+}
+.app { max-width: 680px; margin: 0 auto; padding: 1rem 0 3rem; }
+.header { text-align: center; padding: 1.5rem 0 2rem; }
+.header h1 { font-size: 26px; font-weight: 500; color: var(--color-text-primary); letter-spacing: -0.5px; }
+.header p { font-size: 14px; color: var(--color-text-secondary); margin-top: 4px; }
+.wave { font-size: 28px; display: block; margin-bottom: 8px; }
+.tabs { display: flex; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.5rem; background: var(--color-background-secondary); }
+.tab { flex: 1; padding: 10px 8px; font-size: 13px; font-weight: 500; text-align: center; cursor: pointer; color: var(--color-text-secondary); transition: all 0.15s; border: none; background: transparent; }
+.tab.active { background: var(--color-background-primary); color: var(--color-text-primary); border-radius: calc(var(--border-radius-lg) - 2px); margin: 3px; }
+.section { display: none; }
+.section.active { display: block; }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+.card-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; }
+.form-row { display: flex; gap: 8px; align-items: flex-end; }
+.form-group { flex: 1; }
+.form-group label { font-size: 12px; color: var(--color-text-secondary); display: block; margin-bottom: 4px; }
+.form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid var(--color-border-secondary); border-radius: 4px; }
+.color-row { display: flex; gap: 8px; margin-top: 8px; }
+.color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; }
+.color-dot.selected { border-color: var(--color-text-primary); transform: scale(1.15); }
+.member-list { display: flex; flex-direction: column; gap: 8px; }
+.member-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+.avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; flex-shrink: 0; }
+.member-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); flex: 1; }
+.member-stats { font-size: 12px; color: var(--color-text-secondary); }
+.delete-btn { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--color-text-tertiary); padding: 2px 6px; border-radius: 4px; transition: color 0.15s; }
+.delete-btn:hover { color: #c00; }
+.expense-list { display: flex; flex-direction: column; gap: 8px; }
+.expense-item { padding: 12px 14px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+.expense-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.expense-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.expense-amount { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+.expense-meta { font-size: 12px; color: var(--color-text-secondary); display: flex; align-items: center; gap: 6px; }
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.badge-equal { background: #E1F5EE; color: #0F6E56; }
+.badge-custom { background: #E6F1FB; color: #185FA5; }
+.split-toggle { display: flex; gap: 6px; margin-bottom: 12px; }
+.split-btn { flex: 1; padding: 8px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); cursor: pointer; background: transparent; color: var(--color-text-secondary); transition: all 0.15s; }
+.split-btn.active { background: var(--color-background-secondary); color: var(--color-text-primary); border-color: var(--color-border-primary); font-weight: 500; }
+.checkboxes { display: flex; flex-direction: column; gap: 6px; }
+.checkbox-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: var(--border-radius-md); }
+.checkbox-item input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: #1D9E75; }
+.checkbox-label { font-size: 13px; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px; flex: 1; }
+.summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 1rem; }
+.metric { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+.metric-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 4px; }
+.metric-value { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+.balance-list { display: flex; flex-direction: column; gap: 8px; }
+.balance-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); }
+.balance-name { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; }
+.balance-paid { font-size: 12px; color: var(--color-text-secondary); }
+.balance-due { font-size: 15px; font-weight: 500; }
+.due-positive { color: #0F6E56; }
+.due-negative { color: #993C1D; }
+.due-zero { color: var(--color-text-secondary); }
+.settlement-list { display: flex; flex-direction: column; gap: 8px; }
+.settlement-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); font-size: 13px; }
+.arrow { color: var(--color-text-secondary); font-size: 16px; }
+.settle-amount { font-size: 14px; font-weight: 500; color: #185FA5; margin-left: auto; }
+.empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--color-text-secondary); font-size: 14px; }
+.empty-icon { font-size: 36px; display: block; margin-bottom: 8px; }
+.add-btn { width: 100%; padding: 10px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; color: var(--color-text-primary); margin-top: 8px; transition: background 0.15s; }
+.add-btn:hover { background: var(--color-background-secondary); }
+.section-heading { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; }
+.loader { text-align: center; padding: 20px; font-size: 14px; color: #666; display: none; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <span class="wave">🏖️</span>
+    <h1>Goa Trip Expenses</h1>
+    <p>Split costs fairly among friends</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('members')">Members</button>
+    <button class="tab" onclick="switchTab('expenses')">Expenses</button>
+    <button class="tab" onclick="switchTab('summary')">Summary</button>
+  </div>
+
+  <div id="loader" class="loader">Syncing with Google Sheets...</div>
+
+  <div id="tab-members" class="section active">
+    <div class="card">
+      <div class="card-title">Add member</div>
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label>Name</label>
+          <input type="text" id="member-name" placeholder="e.g. Raj" maxlength="20">
+        </div>
+        <button class="add-btn" style="flex:1;margin-top:0;width:auto;padding:9px 16px" onclick="addMember()">+ Add</button>
+      </div>
+      <div class="color-row" id="color-picker">
+        <div class="color-dot selected" style="background:#1D9E75" data-color="#1D9E75" onclick="selectColor(this)"></div>
+        <div class="color-dot" style="background:#378ADD" data-color="#378ADD" onclick="selectColor(this)"></div>
+        <div class="color-dot" style="background:#D85A30" data-color="#D85A30" onclick="selectColor(this)"></div>
+        <div class="color-dot" style="background:#D4537E" data-color="#D4537E" onclick="selectColor(this)"></div>
+        <div class="color-dot" style="background:#7F77DD" data-color="#7F77DD" onclick="selectColor(this)"></div>
+        <div class="color-dot" style="background:#BA7517" data-color="#BA7517" onclick="selectColor(this)"></div>
+      </div>
+    </div>
+    <div class="section-heading">Trip members</div>
+    <div class="member-list" id="member-list"></div>
+  </div>
+
+  <div id="tab-expenses" class="section">
+    <div class="card">
+      <div class="card-title">Add expense</div>
+      <div class="form-row" style="margin-bottom:10px">
+        <div class="form-group" style="flex:2">
+          <label>Description</label>
+          <input type="text" id="exp-name" placeholder="e.g. Beach shack dinner">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label>Amount (₹)</label>
+          <input type="number" id="exp-amount" placeholder="0" min="0">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:10px">
+        <label>Paid by</label>
+        <select id="exp-paidby"></select>
+      </div>
+      <div class="card-title" style="margin-bottom:8px">Split type</div>
+      <div class="split-toggle">
+        <button class="split-btn active" id="btn-equal" onclick="setSplit('equal')">Split equally</button>
+        <button class="split-btn" id="btn-custom" onclick="setSplit('custom')">Select people</button>
+      </div>
+      <div id="split-equal-info" style="font-size:13px;color:var(--color-text-secondary);margin-bottom:10px">Shared among all members equally.</div>
+      <div id="split-custom-section" style="display:none">
+        <div class="checkboxes" id="custom-checkboxes"></div>
+      </div>
+      <button class="add-btn" onclick="addExpense()">+ Add Expense</button>
+    </div>
+    <div class="section-heading">All expenses</div>
+    <div class="expense-list" id="expense-list"></div>
+  </div>
+
+  <div id="tab-summary" class="section">
+    <div class="summary-grid" id="summary-metrics">
+      <div class="metric"><div class="metric-label">Total spent</div><div class="metric-value" id="total-spent">₹0</div></div>
+      <div class="metric"><div class="metric-label">Expenses</div><div class="metric-value" id="total-expenses">0</div></div>
+      <div class="metric"><div class="metric-label">Members</div><div class="metric-value" id="total-members">0</div></div>
+    </div>
+    <div class="section-heading">Balances</div>
+    <div class="balance-list" id="balance-list"></div>
+    <div class="section-heading" style="margin-top:1.5rem">Who pays whom</div>
+    <div class="settlement-list" id="settlement-list"></div>
+  </div>
+</div>
+
+<script>
+// --- 1. CONFIGURATION ---
+// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+const API_URL = "https://script.google.com/macros/s/AKfycbzMeavGr_eKavsztFESOgQIiOQWQmvand2uMmZIwGDgaqgrJRXwJQkDSLvslLkyGsx86g/exec";
+
+let members = [];
+let expenses = [];
+let selectedColor = "#1D9E75";
+let splitMode = "equal";
+
+// --- 2. GOOGLE SHEETS API INTEGRATION ---
+
+async function loadData() {
+  document.getElementById("loader").style.display = "block";
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    members = data.members || [];
+    expenses = data.expenses || [];
+    
+    // Ensure numbers stay parsed correctly from sheets
+    expenses = expenses.map(e => ({...e, amount: parseFloat(e.amount)}));
+    
+    updateAllViews();
+  } catch (error) {
+    console.error("Error loading data:", error);
+    alert("Failed to load data from Google Sheets.");
+  } finally {
+    document.getElementById("loader").style.display = "none";
+  }
+}
+
+async function apiRequest(bodyData) {
+  try {
+    await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(bodyData)
+    });
+  } catch (error) {
+    console.error("API Error:", error);
+  }
+}
+
+// Initial Load
+loadData();
+
+// --- 3. UI LOGIC ---
+
+function selectColor(el) {
+  document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("selected"));
+  el.classList.add("selected");
+  selectedColor = el.dataset.color;
+}
+
+function initials(name) {
+  return name.trim().split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll(".tab").forEach((t,i) => {
+    t.classList.toggle("active", ["members","expenses","summary"][i] === tab);
+  });
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById("tab-"+tab).classList.add("active");
+  if(tab === "expenses") refreshExpenseForm();
+  if(tab === "summary") renderSummary();
+}
+
+function updateAllViews() {
+  renderMembers();
+  refreshExpenseForm();
+  renderExpenses();
+  renderSummary();
+}
+
+async function addMember() {
+  const name = document.getElementById("member-name").value.trim();
+  if(!name) return alert("Please enter a name.");
+  if(members.find(m => m.name.toLowerCase() === name.toLowerCase())) return alert("Member already exists.");
+  
+  const newMember = { id: Date.now().toString(), name, color: selectedColor };
+  
+  // Optimistic UI Update
+  members.push(newMember);
+  updateAllViews();
+  document.getElementById("member-name").value = "";
+
+  // Send to Sheets
+  await apiRequest({ action: 'addMember', ...newMember });
+}
+
+async function deleteMember(id) {
+  id = id.toString();
+  if(expenses.some(e => e.paidBy === id || e.splits.some(s => s.id === id))) {
+    return alert("Cannot remove a member who has expenses attached.");
+  }
+  
+  // Optimistic UI Update
+  members = members.filter(m => m.id !== id);
+  updateAllViews();
+
+  // Send to Sheets
+  await apiRequest({ action: 'deleteMember', id });
+}
+
+function renderMembers() {
+  const el = document.getElementById("member-list");
+  if(!members.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">👥</span>No members yet. Add your friends!</div>'; return; }
+  el.innerHTML = members.map(m => {
+    const paid = expenses.filter(e=>e.paidBy===m.id).reduce((a,e)=>a+e.amount,0);
+    return `<div class="member-item">
+      <div class="avatar" style="background:${m.color}20;color:${m.color}">${initials(m.name)}</div>
+      <div style="flex:1">
+        <div class="member-name">${m.name}</div>
+        <div class="member-stats">Paid ₹${paid.toLocaleString('en-IN')}</div>
+      </div>
+      <button class="delete-btn" onclick="deleteMember('${m.id}')">✕</button>
+    </div>`;
+  }).join("");
+}
+
+function setSplit(mode) {
+  splitMode = mode;
+  document.getElementById("btn-equal").classList.toggle("active", mode==="equal");
+  document.getElementById("btn-custom").classList.toggle("active", mode==="custom");
+  document.getElementById("split-equal-info").style.display = mode==="equal"?"block":"none";
+  document.getElementById("split-custom-section").style.display = mode==="custom"?"block":"none";
+}
+
+function refreshExpenseForm() {
+  const sel = document.getElementById("exp-paidby");
+  sel.innerHTML = members.length ? members.map(m=>`<option value="${m.id}">${m.name}</option>`).join("") : '<option>Add members first</option>';
+  const checks = document.getElementById("custom-checkboxes");
+  checks.innerHTML = members.map(m=>`<div class="checkbox-item">
+    <input type="checkbox" id="chk-${m.id}" value="${m.id}" checked>
+    <label class="checkbox-label" for="chk-${m.id}">
+      <div class="avatar" style="width:24px;height:24px;font-size:10px;background:${m.color}20;color:${m.color}">${initials(m.name)}</div>
+      ${m.name}
+    </label>
+  </div>`).join("");
+}
+
+async function addExpense() {
+  if(!members.length) return alert("Add members first.");
+  const name = document.getElementById("exp-name").value.trim();
+  const amount = parseFloat(document.getElementById("exp-amount").value);
+  const paidBy = document.getElementById("exp-paidby").value.toString();
+  
+  if(!name) return alert("Enter a description.");
+  if(!amount || amount <= 0) return alert("Enter a valid amount.");
+  
+  let splits;
+  if(splitMode === "equal") {
+    splits = members.map(m => ({ id: m.id, share: amount/members.length }));
+  } else {
+    const checked = [...document.querySelectorAll("#custom-checkboxes input:checked")].map(c => c.value);
+    if(!checked.length) return alert("Select at least one person.");
+    splits = checked.map(id => ({ id, share: amount/checked.length }));
+  }
+  
+  const newExpense = { id: Date.now().toString(), name, amount, paidBy, splits, splitMode };
+
+  // Optimistic UI Update
+  expenses.push(newExpense);
+  document.getElementById("exp-name").value = "";
+  document.getElementById("exp-amount").value = "";
+  updateAllViews();
+
+  // Send to Sheets
+  await apiRequest({ action: 'addExpense', ...newExpense });
+}
+
+async function deleteExpense(id) {
+  id = id.toString();
+  // Optimistic UI Update
+  expenses = expenses.filter(e => e.id !== id);
+  updateAllViews();
+
+  // Send to Sheets
+  await apiRequest({ action: 'deleteExpense', id });
+}
+
+function renderExpenses() {
+  const el = document.getElementById("expense-list");
+  if(!expenses.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">🧾</span>No expenses yet.</div>'; return; }
+  
+  // Sort by newest first based on numeric ID
+  const sortedExpenses = [...expenses].sort((a,b) => parseInt(b.id) - parseInt(a.id));
+  
+  el.innerHTML = sortedExpenses.map(e => {
+    const payer = members.find(m=>m.id===e.paidBy);
+    const splitPeople = e.splits.map(s=>members.find(m=>m.id===s.id)?.name).filter(Boolean).join(", ");
+    return `<div class="expense-item">
+      <div class="expense-top">
+        <div class="expense-name">${e.name}</div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="expense-amount">₹${e.amount.toLocaleString('en-IN')}</span>
+          <button class="delete-btn" onclick="deleteExpense('${e.id}')">✕</button>
+        </div>
+      </div>
+      <div class="expense-meta">
+        ${payer ? `<div class="avatar" style="width:18px;height:18px;font-size:9px;background:${payer.color}20;color:${payer.color}">${initials(payer.name)}</div>` : ''}
+        <span>${payer?.name || '?'} paid</span>
+        <span class="badge ${e.splitMode==='equal'?'badge-equal':'badge-custom'}">${e.splitMode==='equal'?'Equal split':'Custom split'}</span>
+      </div>
+      ${e.splitMode==='custom' ? `<div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px">Split among: ${splitPeople}</div>` : ''}
+    </div>`;
+  }).join("");
+}
+
+function renderSummary() {
+  const total = expenses.reduce((a,e)=>a+e.amount,0);
+  document.getElementById("total-spent").textContent = "₹"+total.toLocaleString('en-IN');
+  document.getElementById("total-expenses").textContent = expenses.length;
+  document.getElementById("total-members").textContent = members.length;
+
+  if(!members.length) {
+    document.getElementById("balance-list").innerHTML = '<div class="empty-state"><span class="empty-icon">⚖️</span>Add members and expenses to see balances.</div>';
+    document.getElementById("settlement-list").innerHTML = '<div class="empty-state"><span class="empty-icon">✅</span>All settled up!</div>';
+    return;
+  }
+
+  const balance = {};
+  members.forEach(m => balance[m.id] = 0);
+  expenses.forEach(e => {
+    balance[e.paidBy] = (balance[e.paidBy]||0) + e.amount;
+    e.splits.forEach(s => {
+      balance[s.id] = (balance[s.id]||0) - s.share;
+    });
+  });
+
+  const balList = document.getElementById("balance-list");
+  balList.innerHTML = members.map(m => {
+    const net = balance[m.id] || 0;
+    const paid = expenses.filter(e=>e.paidBy===m.id).reduce((a,e)=>a+e.amount,0);
+    const cls = net>0.01?"due-positive":net<-0.01?"due-negative":"due-zero";
+    const label = net>0.01?"gets back ₹"+Math.abs(net).toFixed(0):net<-0.01?"owes ₹"+Math.abs(net).toFixed(0):"settled ✓";
+    return `<div class="balance-item">
+      <div class="balance-name">
+        <div class="avatar" style="background:${m.color}20;color:${m.color}">${initials(m.name)}</div>
+        <div>
+          <div>${m.name}</div>
+          <div class="balance-paid">Paid ₹${paid.toLocaleString('en-IN')}</div>
+        </div>
+      </div>
+      <div class="balance-due ${cls}">${label}</div>
+    </div>`;
+  }).join("");
+
+  const balCopy = {...balance};
+  const settlements = [];
+  const debtors = members.filter(m=>balCopy[m.id]<-0.01).map(m=>({...m,bal:balCopy[m.id]}));
+  const creditors = members.filter(m=>balCopy[m.id]>0.01).map(m=>({...m,bal:balCopy[m.id]}));
+  
+  while(debtors.length && creditors.length) {
+    const d = debtors[0], c = creditors[0];
+    const amt = Math.min(Math.abs(d.bal), c.bal);
+    settlements.push({from:d,to:c,amount:amt});
+    d.bal += amt; c.bal -= amt;
+    if(Math.abs(d.bal)<0.01) debtors.shift();
+    if(Math.abs(c.bal)<0.01) creditors.shift();
+  }
+
+  const setList = document.getElementById("settlement-list");
+  if(!settlements.length) {
+    setList.innerHTML = '<div class="empty-state"><span class="empty-icon">✅</span>All settled up!</div>';
+  } else {
+    setList.innerHTML = settlements.map(s=>`<div class="settlement-item">
+      <div class="avatar" style="width:28px;height:28px;font-size:11px;background:${s.from.color}20;color:${s.from.color}">${initials(s.from.name)}</div>
+      <span>${s.from.name}</span>
+      <span class="arrow">→</span>
+      <div class="avatar" style="width:28px;height:28px;font-size:11px;background:${s.to.color}20;color:${s.to.color}">${initials(s.to.name)}</div>
+      <span>${s.to.name}</span>
+      <span class="settle-amount">₹${s.amount.toFixed(0)}</span>
+    </div>`).join("");
+  }
+}
+</script>
+</body>
+</html>
