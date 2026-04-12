@@ -13,13 +13,13 @@ body { font-family: sans-serif; background: #fafafa; }
   --color-border-primary: #111; --color-border-secondary: #ccc; --color-border-tertiary: #eee;
   --border-radius-md: 8px; --border-radius-lg: 12px;
 }
-.app { max-width: 680px; margin: 0 auto; padding: 1rem 1rem 3rem; }
+.app { max-width: 680px; margin: 0 auto; padding: 1rem 0 3rem; }
 .header { text-align: center; padding: 1.5rem 0 2rem; }
 .header h1 { font-size: 26px; font-weight: 500; color: var(--color-text-primary); letter-spacing: -0.5px; }
 .header p { font-size: 14px; color: var(--color-text-secondary); margin-top: 4px; }
 .wave { font-size: 28px; display: block; margin-bottom: 8px; }
 .tabs { display: flex; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; margin-bottom: 1.5rem; background: var(--color-background-secondary); }
-.tab { flex: 1; padding: 10px 4px; font-size: 12px; font-weight: 500; text-align: center; cursor: pointer; color: var(--color-text-secondary); transition: all 0.15s; border: none; background: transparent; }
+.tab { flex: 1; padding: 10px 4px; font-size: 13px; font-weight: 500; text-align: center; cursor: pointer; color: var(--color-text-secondary); transition: all 0.15s; border: none; background: transparent; }
 .tab.active { background: var(--color-background-primary); color: var(--color-text-primary); border-radius: calc(var(--border-radius-lg) - 2px); margin: 3px; }
 .section { display: none; }
 .section.active { display: block; }
@@ -28,7 +28,7 @@ body { font-family: sans-serif; background: #fafafa; }
 .form-row { display: flex; gap: 8px; align-items: flex-end; }
 .form-group { flex: 1; }
 .form-group label { font-size: 12px; color: var(--color-text-secondary); display: block; margin-bottom: 4px; }
-.form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid var(--color-border-secondary); border-radius: 4px; font-size: 14px; }
+.form-group input, .form-group select { width: 100%; padding: 8px; border: 1px solid var(--color-border-secondary); border-radius: 4px; }
 .color-row { display: flex; gap: 8px; margin-top: 8px; }
 .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: all 0.15s; }
 .color-dot.selected { border-color: var(--color-text-primary); transform: scale(1.15); }
@@ -67,31 +67,19 @@ body { font-family: sans-serif; background: #fafafa; }
 .due-positive { color: #0F6E56; }
 .due-negative { color: #993C1D; }
 .due-zero { color: var(--color-text-secondary); }
+.settlement-list { display: flex; flex-direction: column; gap: 8px; }
+.settlement-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); font-size: 13px; }
+.arrow { color: var(--color-text-secondary); font-size: 16px; }
+.settle-amount { font-size: 14px; font-weight: 500; color: #185FA5; margin-left: auto; }
 .empty-state { text-align: center; padding: 2.5rem 1rem; color: var(--color-text-secondary); font-size: 14px; }
 .empty-icon { font-size: 36px; display: block; margin-bottom: 8px; }
 .add-btn { width: 100%; padding: 10px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 14px; font-weight: 500; cursor: pointer; color: var(--color-text-primary); margin-top: 8px; transition: background 0.15s; }
 .add-btn:hover { background: var(--color-background-secondary); }
 .section-heading { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 1rem; }
-.loader { text-align: center; padding: 20px; font-size: 14px; color: #666; display: none; }
-
-/* ── Settlement Tab Styles ── */
-.settle-summary-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; margin-bottom: 1.25rem; }
-.settlement-card { display: flex; flex-direction: column; gap: 12px; }
-.settle-item { display: flex; align-items: center; gap: 10px; padding: 14px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); transition: opacity 0.2s; }
-.settle-item.done { opacity: 0.45; }
-.settle-people { display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap; }
-.settle-arrow { color: var(--color-text-tertiary); font-size: 14px; }
-.settle-name { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
-.settle-amt { font-size: 15px; font-weight: 500; color: #185FA5; white-space: nowrap; margin-right: 8px; }
-.settle-mark-btn { border: none; border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-.settle-mark-btn.pending { background: #1D9E75; color: #fff; }
-.settle-mark-btn.pending:hover { background: #0F6E56; }
-.settle-mark-btn.settled { background: var(--color-background-primary); border: 1px solid var(--color-border-secondary); color: var(--color-text-secondary); }
-.settle-mark-btn.settled:hover { background: #fdecea; color: #c00; border-color: #c00; }
-.done-label { font-size: 11px; color: #0F6E56; font-weight: 500; background: #E1F5EE; padding: 2px 8px; border-radius: 20px; }
-.settle-filter { display: flex; gap: 6px; margin-bottom: 1rem; }
-.filter-btn { padding: 6px 14px; font-size: 12px; font-weight: 500; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; }
-.filter-btn.active { background: #111; color: #fff; border-color: #111; }
+.loader { display: none; text-align: center; padding: 40px 20px; }
+.spinner { width: 36px; height: 36px; border: 4px solid #e0e0e0; border-top-color: #1D9E75; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 12px auto; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loader-text { font-size: 14px; color: var(--color-text-secondary); font-weight: 500; }
 </style>
 </head>
 <body>
@@ -104,16 +92,28 @@ body { font-family: sans-serif; background: #fafafa; }
   </div>
 
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('members')">Members</button>
+    <button class="tab active" onclick="switchTab('summary')">Summary</button>
+    <button class="tab" onclick="switchTab('members')">Members</button>
     <button class="tab" onclick="switchTab('expenses')">Expenses</button>
-    <button class="tab" onclick="switchTab('summary')">Summary</button>
-    <button class="tab" onclick="switchTab('settlements')">Settlements</button>
+    <button class="tab" onclick="switchTab('settlement')">Settlement</button>
   </div>
 
-  <div id="loader" class="loader">Syncing with Google Sheets...</div>
+  <div id="loader" class="loader">
+    <div class="spinner"></div>
+    <div class="loader-text">Syncing with Google Sheets...</div>
+  </div>
 
-  <!-- Members Tab -->
-  <div id="tab-members" class="section active">
+  <div id="tab-summary" class="section active">
+    <div class="summary-grid" id="summary-metrics">
+      <div class="metric"><div class="metric-label">Total spent</div><div class="metric-value" id="total-spent">₹0</div></div>
+      <div class="metric"><div class="metric-label">Expenses</div><div class="metric-value" id="total-expenses">0</div></div>
+      <div class="metric"><div class="metric-label">Members</div><div class="metric-value" id="total-members">0</div></div>
+    </div>
+    <div class="section-heading">Balances</div>
+    <div class="balance-list" id="balance-list"></div>
+  </div>
+
+  <div id="tab-members" class="section">
     <div class="card">
       <div class="card-title">Add member</div>
       <div class="form-row">
@@ -136,7 +136,6 @@ body { font-family: sans-serif; background: #fafafa; }
     <div class="member-list" id="member-list"></div>
   </div>
 
-  <!-- Expenses Tab -->
   <div id="tab-expenses" class="section">
     <div class="card">
       <div class="card-title">Add expense</div>
@@ -169,48 +168,23 @@ body { font-family: sans-serif; background: #fafafa; }
     <div class="expense-list" id="expense-list"></div>
   </div>
 
-  <!-- Summary Tab -->
-  <div id="tab-summary" class="section">
-    <div class="summary-grid" id="summary-metrics">
-      <div class="metric"><div class="metric-label">Total spent</div><div class="metric-value" id="total-spent">₹0</div></div>
-      <div class="metric"><div class="metric-label">Expenses</div><div class="metric-value" id="total-expenses">0</div></div>
-      <div class="metric"><div class="metric-label">Members</div><div class="metric-value" id="total-members">0</div></div>
-    </div>
-    <div class="section-heading">Balances</div>
-    <div class="balance-list" id="balance-list"></div>
-  </div>
-
-  <!-- Settlements Tab -->
-  <div id="tab-settlements" class="section">
-    <div class="settle-summary-grid" id="settle-metrics">
-      <div class="metric"><div class="metric-label">Pending</div><div class="metric-value" id="settle-pending-count">0</div></div>
-      <div class="metric"><div class="metric-label">Settled</div><div class="metric-value" id="settle-done-count">0</div></div>
-    </div>
-
-    <div class="settle-filter">
-      <button class="filter-btn active" id="filter-all" onclick="setFilter('all')">All</button>
-      <button class="filter-btn" id="filter-pending" onclick="setFilter('pending')">Pending</button>
-      <button class="filter-btn" id="filter-settled" onclick="setFilter('settled')">Settled</button>
-    </div>
-
-    <div class="settlement-card" id="settle-list">
-      <div class="empty-state"><span class="empty-icon">🤝</span>No settlements needed yet.</div>
-    </div>
+  <div id="tab-settlement" class="section">
+    <div class="section-heading">Who pays whom</div>
+    <div class="settlement-list" id="settlement-list"></div>
   </div>
 </div>
 
 <script>
-// --- CONFIGURATION ---
-const API_URL = "https://script.google.com/macros/s/AKfycbzMeavGr_eKavsztFESOgQIiOQWQmvand2uMmZIwGDgaqgrJRXwJQkDSLvslLkyGsx86g/exec";
+// --- 1. CONFIGURATION ---
+// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
+const API_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
 
 let members = [];
 let expenses = [];
-let settledMap = {}; // key: "fromId_toId", value: true/false
 let selectedColor = "#1D9E75";
 let splitMode = "equal";
-let currentFilter = "all";
 
-// --- GOOGLE SHEETS API ---
+// --- 2. GOOGLE SHEETS API INTEGRATION ---
 
 async function loadData() {
   document.getElementById("loader").style.display = "block";
@@ -219,8 +193,10 @@ async function loadData() {
     const data = await response.json();
     members = data.members || [];
     expenses = data.expenses || [];
-    settledMap = data.settledMap || {};
+    
+    // Ensure numbers stay parsed correctly from sheets
     expenses = expenses.map(e => ({...e, amount: parseFloat(e.amount)}));
+    
     updateAllViews();
   } catch (error) {
     console.error("Error loading data:", error);
@@ -232,15 +208,19 @@ async function loadData() {
 
 async function apiRequest(bodyData) {
   try {
-    await fetch(API_URL, { method: 'POST', body: JSON.stringify(bodyData) });
+    await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(bodyData)
+    });
   } catch (error) {
     console.error("API Error:", error);
   }
 }
 
+// Initial Load
 loadData();
 
-// --- UI HELPERS ---
+// --- 3. UI LOGIC ---
 
 function selectColor(el) {
   document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("selected"));
@@ -253,13 +233,14 @@ function initials(name) {
 }
 
 function switchTab(tab) {
-  const tabs = ["members","expenses","summary","settlements"];
-  document.querySelectorAll(".tab").forEach((t,i) => t.classList.toggle("active", tabs[i] === tab));
+  // Updated array to handle the 4 tabs
+  document.querySelectorAll(".tab").forEach((t,i) => {
+    t.classList.toggle("active", ["summary","members","expenses","settlement"][i] === tab);
+  });
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById("tab-"+tab).classList.add("active");
   if(tab === "expenses") refreshExpenseForm();
-  if(tab === "summary") renderSummary();
-  if(tab === "settlements") renderSettlements();
+  if(tab === "summary" || tab === "settlement") renderSummary();
 }
 
 function updateAllViews() {
@@ -267,19 +248,21 @@ function updateAllViews() {
   refreshExpenseForm();
   renderExpenses();
   renderSummary();
-  renderSettlements();
 }
-
-// --- MEMBERS ---
 
 async function addMember() {
   const name = document.getElementById("member-name").value.trim();
   if(!name) return alert("Please enter a name.");
   if(members.find(m => m.name.toLowerCase() === name.toLowerCase())) return alert("Member already exists.");
+  
   const newMember = { id: Date.now().toString(), name, color: selectedColor };
+  
+  // Optimistic UI Update
   members.push(newMember);
   updateAllViews();
   document.getElementById("member-name").value = "";
+
+  // Send to Sheets
   await apiRequest({ action: 'addMember', ...newMember });
 }
 
@@ -288,8 +271,12 @@ async function deleteMember(id) {
   if(expenses.some(e => e.paidBy === id || e.splits.some(s => s.id === id))) {
     return alert("Cannot remove a member who has expenses attached.");
   }
+  
+  // Optimistic UI Update
   members = members.filter(m => m.id !== id);
   updateAllViews();
+
+  // Send to Sheets
   await apiRequest({ action: 'deleteMember', id });
 }
 
@@ -308,8 +295,6 @@ function renderMembers() {
     </div>`;
   }).join("");
 }
-
-// --- EXPENSES ---
 
 function setSplit(mode) {
   splitMode = mode;
@@ -337,8 +322,10 @@ async function addExpense() {
   const name = document.getElementById("exp-name").value.trim();
   const amount = parseFloat(document.getElementById("exp-amount").value);
   const paidBy = document.getElementById("exp-paidby").value.toString();
+  
   if(!name) return alert("Enter a description.");
   if(!amount || amount <= 0) return alert("Enter a valid amount.");
+  
   let splits;
   if(splitMode === "equal") {
     splits = members.map(m => ({ id: m.id, share: amount/members.length }));
@@ -347,26 +334,36 @@ async function addExpense() {
     if(!checked.length) return alert("Select at least one person.");
     splits = checked.map(id => ({ id, share: amount/checked.length }));
   }
+  
   const newExpense = { id: Date.now().toString(), name, amount, paidBy, splits, splitMode };
+
+  // Optimistic UI Update
   expenses.push(newExpense);
   document.getElementById("exp-name").value = "";
   document.getElementById("exp-amount").value = "";
   updateAllViews();
+
+  // Send to Sheets
   await apiRequest({ action: 'addExpense', ...newExpense });
 }
 
 async function deleteExpense(id) {
   id = id.toString();
+  // Optimistic UI Update
   expenses = expenses.filter(e => e.id !== id);
   updateAllViews();
+
+  // Send to Sheets
   await apiRequest({ action: 'deleteExpense', id });
 }
 
 function renderExpenses() {
   const el = document.getElementById("expense-list");
   if(!expenses.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">🧾</span>No expenses yet.</div>'; return; }
-  const sorted = [...expenses].sort((a,b) => parseInt(b.id) - parseInt(a.id));
-  el.innerHTML = sorted.map(e => {
+  
+  const sortedExpenses = [...expenses].sort((a,b) => parseInt(b.id) - parseInt(a.id));
+  
+  el.innerHTML = sortedExpenses.map(e => {
     const payer = members.find(m=>m.id===e.paidBy);
     const splitPeople = e.splits.map(s=>members.find(m=>m.id===s.id)?.name).filter(Boolean).join(", ");
     return `<div class="expense-item">
@@ -387,34 +384,6 @@ function renderExpenses() {
   }).join("");
 }
 
-// --- SUMMARY ---
-
-function computeBalance() {
-  const balance = {};
-  members.forEach(m => balance[m.id] = 0);
-  expenses.forEach(e => {
-    balance[e.paidBy] = (balance[e.paidBy]||0) + e.amount;
-    e.splits.forEach(s => { balance[s.id] = (balance[s.id]||0) - s.share; });
-  });
-  return balance;
-}
-
-function computeSettlements() {
-  const balance = computeBalance();
-  const settlements = [];
-  const debtors = members.filter(m=>balance[m.id]<-0.01).map(m=>({...m,bal:balance[m.id]}));
-  const creditors = members.filter(m=>balance[m.id]>0.01).map(m=>({...m,bal:balance[m.id]}));
-  while(debtors.length && creditors.length) {
-    const d = debtors[0], c = creditors[0];
-    const amt = Math.min(Math.abs(d.bal), c.bal);
-    settlements.push({ from: d, to: c, amount: amt, key: `${d.id}_${c.id}` });
-    d.bal += amt; c.bal -= amt;
-    if(Math.abs(d.bal)<0.01) debtors.shift();
-    if(Math.abs(c.bal)<0.01) creditors.shift();
-  }
-  return settlements;
-}
-
 function renderSummary() {
   const total = expenses.reduce((a,e)=>a+e.amount,0);
   document.getElementById("total-spent").textContent = "₹"+total.toLocaleString('en-IN');
@@ -423,10 +392,19 @@ function renderSummary() {
 
   if(!members.length) {
     document.getElementById("balance-list").innerHTML = '<div class="empty-state"><span class="empty-icon">⚖️</span>Add members and expenses to see balances.</div>';
+    document.getElementById("settlement-list").innerHTML = '<div class="empty-state"><span class="empty-icon">✅</span>All settled up!</div>';
     return;
   }
 
-  const balance = computeBalance();
+  const balance = {};
+  members.forEach(m => balance[m.id] = 0);
+  expenses.forEach(e => {
+    balance[e.paidBy] = (balance[e.paidBy]||0) + e.amount;
+    e.splits.forEach(s => {
+      balance[s.id] = (balance[s.id]||0) - s.share;
+    });
+  });
+
   const balList = document.getElementById("balance-list");
   balList.innerHTML = members.map(m => {
     const net = balance[m.id] || 0;
@@ -444,63 +422,34 @@ function renderSummary() {
       <div class="balance-due ${cls}">${label}</div>
     </div>`;
   }).join("");
-}
 
-// --- SETTLEMENTS TAB ---
+  const balCopy = {...balance};
+  const settlements = [];
+  const debtors = members.filter(m=>balCopy[m.id]<-0.01).map(m=>({...m,bal:balCopy[m.id]}));
+  const creditors = members.filter(m=>balCopy[m.id]>0.01).map(m=>({...m,bal:balCopy[m.id]}));
+  
+  while(debtors.length && creditors.length) {
+    const d = debtors[0], c = creditors[0];
+    const amt = Math.min(Math.abs(d.bal), c.bal);
+    settlements.push({from:d,to:c,amount:amt});
+    d.bal += amt; c.bal -= amt;
+    if(Math.abs(d.bal)<0.01) debtors.shift();
+    if(Math.abs(c.bal)<0.01) creditors.shift();
+  }
 
-function setFilter(f) {
-  currentFilter = f;
-  ["all","pending","settled"].forEach(x => {
-    document.getElementById("filter-"+x).classList.toggle("active", x===f);
-  });
-  renderSettlements();
-}
-
-async function toggleSettlement(key) {
-  settledMap[key] = !settledMap[key];
-  renderSettlements();
-  await apiRequest({ action: 'updateSettled', settledMap });
-}
-
-function renderSettlements() {
-  const settlements = computeSettlements();
-  const pending = settlements.filter(s => !settledMap[s.key]);
-  const done = settlements.filter(s => settledMap[s.key]);
-
-  document.getElementById("settle-pending-count").textContent = pending.length;
-  document.getElementById("settle-done-count").textContent = done.length;
-
-  let visible = settlements;
-  if(currentFilter === "pending") visible = pending;
-  if(currentFilter === "settled") visible = done;
-
-  const el = document.getElementById("settle-list");
-
+  const setList = document.getElementById("settlement-list");
   if(!settlements.length) {
-    el.innerHTML = '<div class="empty-state"><span class="empty-icon">🤝</span>No settlements needed. All even!</div>';
-    return;
+    setList.innerHTML = '<div class="empty-state"><span class="empty-icon">✅</span>All settled up!</div>';
+  } else {
+    setList.innerHTML = settlements.map(s=>`<div class="settlement-item">
+      <div class="avatar" style="width:28px;height:28px;font-size:11px;background:${s.from.color}20;color:${s.from.color}">${initials(s.from.name)}</div>
+      <span>${s.from.name}</span>
+      <span class="arrow">→</span>
+      <div class="avatar" style="width:28px;height:28px;font-size:11px;background:${s.to.color}20;color:${s.to.color}">${initials(s.to.name)}</div>
+      <span>${s.to.name}</span>
+      <span class="settle-amount">₹${s.amount.toFixed(0)}</span>
+    </div>`).join("");
   }
-  if(!visible.length) {
-    el.innerHTML = `<div class="empty-state"><span class="empty-icon">${currentFilter==="settled"?"✅":"🎉"}</span>${currentFilter==="settled"?"No settled payments yet.":"All payments settled!"}</div>`;
-    return;
-  }
-
-  el.innerHTML = visible.map(s => {
-    const isDone = !!settledMap[s.key];
-    return `<div class="settle-item ${isDone?'done':''}">
-      <div class="settle-people">
-        <div class="avatar" style="width:30px;height:30px;font-size:11px;background:${s.from.color}20;color:${s.from.color}">${initials(s.from.name)}</div>
-        <span class="settle-name">${s.from.name}</span>
-        <span class="settle-arrow">→</span>
-        <div class="avatar" style="width:30px;height:30px;font-size:11px;background:${s.to.color}20;color:${s.to.color}">${initials(s.to.name)}</div>
-        <span class="settle-name">${s.to.name}</span>
-      </div>
-      <span class="settle-amt">₹${s.amount.toFixed(0)}</span>
-      <button class="settle-mark-btn ${isDone?'settled':'pending'}" onclick="toggleSettlement('${s.key}')">
-        ${isDone ? 'Undo' : 'Mark paid'}
-      </button>
-    </div>`;
-  }).join("");
 }
 </script>
 </body>
