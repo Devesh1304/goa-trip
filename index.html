@@ -316,6 +316,26 @@ function refreshExpenseForm() {
     </label>
   </div>`).join("");
 }
+  async function recordSettlement(fromId, toId, amount, fromName, toName) {
+  if(!confirm(`Confirm that ${fromName} paid ₹${amount.toFixed(0)} to ${toName}?`)) return;
+
+  // Create a special "expense" that represents the money transfer
+  const newExpense = { 
+    id: Date.now().toString(), 
+    name: `💰 Settlement: ${fromName} paid ${toName}`, 
+    amount: parseFloat(amount), 
+    paidBy: fromId.toString(), 
+    splitMode: 'custom',
+    splits: [{ id: toId.toString(), share: parseFloat(amount) }] 
+  };
+
+  // Optimistic UI Update
+  expenses.push(newExpense);
+  updateAllViews();
+
+  // Send to Google Sheets (uses your existing addExpense API!)
+  await apiRequest({ action: 'addExpense', ...newExpense });
+}
 
 async function addExpense() {
   if(!members.length) return alert("Add members first.");
@@ -441,13 +461,21 @@ function renderSummary() {
   if(!settlements.length) {
     setList.innerHTML = '<div class="empty-state"><span class="empty-icon">✅</span>All settled up!</div>';
   } else {
-    setList.innerHTML = settlements.map(s=>`<div class="settlement-item">
-      <div class="avatar" style="width:28px;height:28px;font-size:11px;background:${s.from.color}20;color:${s.from.color}">${initials(s.from.name)}</div>
-      <span>${s.from.name}</span>
-      <span class="arrow">→</span>
-      <div class="avatar" style="width:28px;height:28px;font-size:11px;background:${s.to.color}20;color:${s.to.color}">${initials(s.to.name)}</div>
-      <span>${s.to.name}</span>
-      <span class="settle-amount">₹${s.amount.toFixed(0)}</span>
+setList.innerHTML = settlements.map(s=>`<div class="settlement-item" style="flex-wrap: wrap;">
+      <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px;">
+        <div class="avatar" style="width:28px;height:28px;font-size:11px;background:${s.from.color}20;color:${s.from.color}">${initials(s.from.name)}</div>
+        <span>${s.from.name}</span>
+        <span class="arrow">→</span>
+        <div class="avatar" style="width:28px;height:28px;font-size:11px;background:${s.to.color}20;color:${s.to.color}">${initials(s.to.name)}</div>
+        <span>${s.to.name}</span>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="settle-amount">₹${s.amount.toFixed(0)}</span>
+        <button class="add-btn" style="margin:0; padding:6px 12px; width:auto; font-size:12px; background:#1D9E75; color:white; border:none;" 
+          onclick="recordSettlement('${s.from.id}', '${s.to.id}', ${s.amount}, '${s.from.name}', '${s.to.name}')">
+          Mark Paid
+        </button>
+      </div>
     </div>`).join("");
   }
 }
