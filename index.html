@@ -169,22 +169,18 @@ body { font-family: sans-serif; background: #fafafa; }
   </div>
 
   <div id="tab-settlement" class="section">
-    <div class="section-heading">Who pays whom</div>
+    <div class="section-heading">Who pays whom (Direct 1-to-1)</div>
     <div class="settlement-list" id="settlement-list"></div>
   </div>
 </div>
 
 <script>
-// --- 1. CONFIGURATION ---
-// PASTE YOUR GOOGLE APPS SCRIPT WEB APP URL HERE
 const API_URL = "https://script.google.com/macros/s/AKfycbzMeavGr_eKavsztFESOgQIiOQWQmvand2uMmZIwGDgaqgrJRXwJQkDSLvslLkyGsx86g/exec";
 
 let members = [];
 let expenses = [];
 let selectedColor = "#1D9E75";
 let splitMode = "equal";
-
-// --- 2. GOOGLE SHEETS API INTEGRATION ---
 
 async function loadData() {
   document.getElementById("loader").style.display = "block";
@@ -193,10 +189,7 @@ async function loadData() {
     const data = await response.json();
     members = data.members || [];
     expenses = data.expenses || [];
-    
-    // Ensure numbers stay parsed correctly from sheets
     expenses = expenses.map(e => ({...e, amount: parseFloat(e.amount)}));
-    
     updateAllViews();
   } catch (error) {
     console.error("Error loading data:", error);
@@ -217,10 +210,7 @@ async function apiRequest(bodyData) {
   }
 }
 
-// Initial Load
 loadData();
-
-// --- 3. UI LOGIC ---
 
 function selectColor(el) {
   document.querySelectorAll(".color-dot").forEach(d => d.classList.remove("selected"));
@@ -233,7 +223,6 @@ function initials(name) {
 }
 
 function switchTab(tab) {
-  // Updated array to handle the 4 tabs
   document.querySelectorAll(".tab").forEach((t,i) => {
     t.classList.toggle("active", ["summary","members","expenses","settlement"][i] === tab);
   });
@@ -256,13 +245,9 @@ async function addMember() {
   if(members.find(m => m.name.toLowerCase() === name.toLowerCase())) return alert("Member already exists.");
   
   const newMember = { id: Date.now().toString(), name, color: selectedColor };
-  
-  // Optimistic UI Update
   members.push(newMember);
   updateAllViews();
   document.getElementById("member-name").value = "";
-
-  // Send to Sheets
   await apiRequest({ action: 'addMember', ...newMember });
 }
 
@@ -271,12 +256,8 @@ async function deleteMember(id) {
   if(expenses.some(e => e.paidBy === id || e.splits.some(s => s.id === id))) {
     return alert("Cannot remove a member who has expenses attached.");
   }
-  
-  // Optimistic UI Update
   members = members.filter(m => m.id !== id);
   updateAllViews();
-
-  // Send to Sheets
   await apiRequest({ action: 'deleteMember', id });
 }
 
@@ -316,10 +297,10 @@ function refreshExpenseForm() {
     </label>
   </div>`).join("");
 }
-  async function recordSettlement(fromId, toId, amount, fromName, toName) {
+
+async function recordSettlement(fromId, toId, amount, fromName, toName) {
   if(!confirm(`Confirm that ${fromName} paid ₹${amount.toFixed(0)} to ${toName}?`)) return;
 
-  // Create a special "expense" that represents the money transfer
   const newExpense = { 
     id: Date.now().toString(), 
     name: `💰 Settlement: ${fromName} paid ${toName}`, 
@@ -329,11 +310,8 @@ function refreshExpenseForm() {
     splits: [{ id: toId.toString(), share: parseFloat(amount) }] 
   };
 
-  // Optimistic UI Update
   expenses.push(newExpense);
   updateAllViews();
-
-  // Send to Google Sheets (uses your existing addExpense API!)
   await apiRequest({ action: 'addExpense', ...newExpense });
 }
 
@@ -357,23 +335,17 @@ async function addExpense() {
   
   const newExpense = { id: Date.now().toString(), name, amount, paidBy, splits, splitMode };
 
-  // Optimistic UI Update
   expenses.push(newExpense);
   document.getElementById("exp-name").value = "";
   document.getElementById("exp-amount").value = "";
   updateAllViews();
-
-  // Send to Sheets
   await apiRequest({ action: 'addExpense', ...newExpense });
 }
 
 async function deleteExpense(id) {
   id = id.toString();
-  // Optimistic UI Update
   expenses = expenses.filter(e => e.id !== id);
   updateAllViews();
-
-  // Send to Sheets
   await apiRequest({ action: 'deleteExpense', id });
 }
 
@@ -443,7 +415,6 @@ function renderSummary() {
     </div>`;
   }).join("");
 
-// 1. Map out exact person-to-person debts
   const owes = {};
   members.forEach(m => {
     owes[m.id] = {};
@@ -460,7 +431,6 @@ function renderSummary() {
     });
   });
 
-  // 2. Net out direct balances (If A owes B 500, and B owes A 200, it becomes A owes B 300)
   for (let i = 0; i < members.length; i++) {
     for (let j = i + 1; j < members.length; j++) {
       const a = members[i].id;
@@ -478,7 +448,6 @@ function renderSummary() {
     }
   }
 
-  // 3. Generate the specific settlements
   const settlements = [];
   for (const debtorId in owes) {
     for (const creditorId in owes[debtorId]) {
@@ -497,7 +466,7 @@ function renderSummary() {
   if(!settlements.length) {
     setList.innerHTML = '<div class="empty-state"><span class="empty-icon">✅</span>All settled up!</div>';
   } else {
-setList.innerHTML = settlements.map(s=>`<div class="settlement-item" style="flex-wrap: wrap;">
+    setList.innerHTML = settlements.map(s=>`<div class="settlement-item" style="flex-wrap: wrap;">
       <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:200px;">
         <div class="avatar" style="width:28px;height:28px;font-size:11px;background:${s.from.color}20;color:${s.from.color}">${initials(s.from.name)}</div>
         <span>${s.from.name}</span>
