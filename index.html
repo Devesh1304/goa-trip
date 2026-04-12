@@ -443,18 +443,54 @@ function renderSummary() {
     </div>`;
   }).join("");
 
-  const balCopy = {...balance};
+// 1. Map out exact person-to-person debts
+  const owes = {};
+  members.forEach(m => {
+    owes[m.id] = {};
+    members.forEach(m2 => owes[m.id][m2.id] = 0);
+  });
+
+  expenses.forEach(e => {
+    const creditor = e.paidBy;
+    e.splits.forEach(s => {
+      const debtor = s.id;
+      if (debtor !== creditor) {
+        owes[debtor][creditor] += s.share;
+      }
+    });
+  });
+
+  // 2. Net out direct balances (If A owes B 500, and B owes A 200, it becomes A owes B 300)
+  for (let i = 0; i < members.length; i++) {
+    for (let j = i + 1; j < members.length; j++) {
+      const a = members[i].id;
+      const b = members[j].id;
+      const aOwesB = owes[a][b] || 0;
+      const bOwesA = owes[b][a] || 0;
+
+      if (aOwesB > bOwesA) {
+        owes[a][b] = aOwesB - bOwesA;
+        owes[b][a] = 0;
+      } else {
+        owes[b][a] = bOwesA - aOwesB;
+        owes[a][b] = 0;
+      }
+    }
+  }
+
+  // 3. Generate the specific settlements
   const settlements = [];
-  const debtors = members.filter(m=>balCopy[m.id]<-0.01).map(m=>({...m,bal:balCopy[m.id]}));
-  const creditors = members.filter(m=>balCopy[m.id]>0.01).map(m=>({...m,bal:balCopy[m.id]}));
-  
-  while(debtors.length && creditors.length) {
-    const d = debtors[0], c = creditors[0];
-    const amt = Math.min(Math.abs(d.bal), c.bal);
-    settlements.push({from:d,to:c,amount:amt});
-    d.bal += amt; c.bal -= amt;
-    if(Math.abs(d.bal)<0.01) debtors.shift();
-    if(Math.abs(c.bal)<0.01) creditors.shift();
+  for (const debtorId in owes) {
+    for (const creditorId in owes[debtorId]) {
+      const amt = owes[debtorId][creditorId];
+      if (amt > 0.01) {
+        const from = members.find(m => m.id === debtorId);
+        const to = members.find(m => m.id === creditorId);
+        if (from && to) {
+          settlements.push({ from, to, amount: amt });
+        }
+      }
+    }
   }
 
   const setList = document.getElementById("settlement-list");
