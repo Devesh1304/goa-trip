@@ -93,9 +93,9 @@ body { font-family: sans-serif; background: #fafafa; }
 
   <div class="tabs">
     <button class="tab active" onclick="switchTab('summary')">Summary</button>
-    <button class="tab" onclick="switchTab('members')">Members</button>
     <button class="tab" onclick="switchTab('expenses')">Expenses</button>
     <button class="tab" onclick="switchTab('settlement')">Settlement</button>
+    <button class="tab" onclick="switchTab('members')">Members</button>
   </div>
 
   <div id="loader" class="loader">
@@ -149,7 +149,8 @@ body { font-family: sans-serif; background: #fafafa; }
     <div class="section-heading">Who pays whom (Direct 1-to-1)</div>
     <div class="settlement-list" id="settlement-list"></div>
   </div>
-    <div id="tab-members" class="section">
+
+  <div id="tab-members" class="section">
     <div class="card">
       <div class="card-title">Add member</div>
       <div class="form-row">
@@ -222,8 +223,9 @@ function initials(name) {
 }
 
 function switchTab(tab) {
+  // ARRAY UPDATED TO MATCH NEW TAB ORDER
   document.querySelectorAll(".tab").forEach((t,i) => {
-    t.classList.toggle("active", ["summary","members","expenses","settlement"][i] === tab);
+    t.classList.toggle("active", ["summary","expenses","settlement","members"][i] === tab);
   });
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById("tab-"+tab).classList.add("active");
