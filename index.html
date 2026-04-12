@@ -253,10 +253,10 @@ async function addMember() {
 
 async function deleteMember(id) {
   id = id.toString();
-  if(expenses.some(e => e.paidBy === id || e.splits.some(s => s.id === id))) {
+  if(expenses.some(e => e.paidBy.toString() === id || e.splits.some(s => s.id.toString() === id))) {
     return alert("Cannot remove a member who has expenses attached.");
   }
-  members = members.filter(m => m.id !== id);
+  members = members.filter(m => m.id.toString() !== id);
   updateAllViews();
   await apiRequest({ action: 'deleteMember', id });
 }
@@ -265,7 +265,7 @@ function renderMembers() {
   const el = document.getElementById("member-list");
   if(!members.length) { el.innerHTML = '<div class="empty-state"><span class="empty-icon">👥</span>No members yet. Add your friends!</div>'; return; }
   el.innerHTML = members.map(m => {
-    const paid = expenses.filter(e=>e.paidBy===m.id).reduce((a,e)=>a+e.amount,0);
+    const paid = Math.round(expenses.filter(e=>e.paidBy.toString()===m.id.toString()).reduce((a,e)=>a+e.amount,0));
     return `<div class="member-item">
       <div class="avatar" style="background:${m.color}20;color:${m.color}">${initials(m.name)}</div>
       <div style="flex:1">
@@ -326,11 +326,11 @@ async function addExpense() {
   
   let splits;
   if(splitMode === "equal") {
-    splits = members.map(m => ({ id: m.id, share: amount/members.length }));
+    splits = members.map(m => ({ id: m.id.toString(), share: amount/members.length }));
   } else {
     const checked = [...document.querySelectorAll("#custom-checkboxes input:checked")].map(c => c.value);
     if(!checked.length) return alert("Select at least one person.");
-    splits = checked.map(id => ({ id, share: amount/checked.length }));
+    splits = checked.map(id => ({ id: id.toString(), share: amount/checked.length }));
   }
   
   const newExpense = { id: Date.now().toString(), name, amount, paidBy, splits, splitMode };
@@ -344,7 +344,7 @@ async function addExpense() {
 
 async function deleteExpense(id) {
   id = id.toString();
-  expenses = expenses.filter(e => e.id !== id);
+  expenses = expenses.filter(e => e.id.toString() !== id);
   updateAllViews();
   await apiRequest({ action: 'deleteExpense', id });
 }
@@ -356,13 +356,13 @@ function renderExpenses() {
   const sortedExpenses = [...expenses].sort((a,b) => parseInt(b.id) - parseInt(a.id));
   
   el.innerHTML = sortedExpenses.map(e => {
-    const payer = members.find(m=>m.id===e.paidBy);
-    const splitPeople = e.splits.map(s=>members.find(m=>m.id===s.id)?.name).filter(Boolean).join(", ");
+    const payer = members.find(m=>m.id.toString()===e.paidBy.toString());
+    const splitPeople = e.splits.map(s=>members.find(m=>m.id.toString()===s.id.toString())?.name).filter(Boolean).join(", ");
     return `<div class="expense-item">
       <div class="expense-top">
         <div class="expense-name">${e.name}</div>
         <div style="display:flex;align-items:center;gap:8px">
-          <span class="expense-amount">₹${e.amount.toLocaleString('en-IN')}</span>
+          <span class="expense-amount">₹${Math.round(e.amount).toLocaleString('en-IN')}</span>
           <button class="delete-btn" onclick="deleteExpense('${e.id}')">✕</button>
         </div>
       </div>
@@ -378,7 +378,7 @@ function renderExpenses() {
 
 function renderSummary() {
   const total = expenses.reduce((a,e)=>a+e.amount,0);
-  document.getElementById("total-spent").textContent = "₹"+total.toLocaleString('en-IN');
+  document.getElementById("total-spent").textContent = "₹"+Math.round(total).toLocaleString('en-IN');
   document.getElementById("total-expenses").textContent = expenses.length;
   document.getElementById("total-members").textContent = members.length;
 
@@ -389,20 +389,20 @@ function renderSummary() {
   }
 
   const balance = {};
-  members.forEach(m => balance[m.id] = 0);
+  members.forEach(m => balance[m.id.toString()] = 0);
   expenses.forEach(e => {
-    balance[e.paidBy] = (balance[e.paidBy]||0) + e.amount;
+    balance[e.paidBy.toString()] = (balance[e.paidBy.toString()]||0) + e.amount;
     e.splits.forEach(s => {
-      balance[s.id] = (balance[s.id]||0) - s.share;
+      balance[s.id.toString()] = (balance[s.id.toString()]||0) - s.share;
     });
   });
 
   const balList = document.getElementById("balance-list");
   balList.innerHTML = members.map(m => {
-    const net = balance[m.id] || 0;
-    const paid = expenses.filter(e=>e.paidBy===m.id).reduce((a,e)=>a+e.amount,0);
+    const net = balance[m.id.toString()] || 0;
+    const paid = Math.round(expenses.filter(e=>e.paidBy.toString()===m.id.toString()).reduce((a,e)=>a+e.amount,0));
     const cls = net>0.01?"due-positive":net<-0.01?"due-negative":"due-zero";
-    const label = net>0.01?"gets back ₹"+Math.abs(net).toFixed(0):net<-0.01?"owes ₹"+Math.abs(net).toFixed(0):"settled ✓";
+    const label = net>0.01?"gets back ₹"+Math.round(Math.abs(net)).toLocaleString('en-IN'):net<-0.01?"owes ₹"+Math.round(Math.abs(net)).toLocaleString('en-IN'):"settled ✓";
     return `<div class="balance-item">
       <div class="balance-name">
         <div class="avatar" style="background:${m.color}20;color:${m.color}">${initials(m.name)}</div>
@@ -417,24 +417,26 @@ function renderSummary() {
 
   const owes = {};
   members.forEach(m => {
-    owes[m.id] = {};
-    members.forEach(m2 => owes[m.id][m2.id] = 0);
+    owes[m.id.toString()] = {};
+    members.forEach(m2 => owes[m.id.toString()][m2.id.toString()] = 0);
   });
 
   expenses.forEach(e => {
-    const creditor = e.paidBy;
+    const creditor = e.paidBy.toString();
     e.splits.forEach(s => {
-      const debtor = s.id;
+      const debtor = s.id.toString();
       if (debtor !== creditor) {
-        owes[debtor][creditor] += s.share;
+        if(owes[debtor] && owes[debtor][creditor] !== undefined) {
+          owes[debtor][creditor] += s.share;
+        }
       }
     });
   });
 
   for (let i = 0; i < members.length; i++) {
     for (let j = i + 1; j < members.length; j++) {
-      const a = members[i].id;
-      const b = members[j].id;
+      const a = members[i].id.toString();
+      const b = members[j].id.toString();
       const aOwesB = owes[a][b] || 0;
       const bOwesA = owes[b][a] || 0;
 
@@ -453,8 +455,8 @@ function renderSummary() {
     for (const creditorId in owes[debtorId]) {
       const amt = owes[debtorId][creditorId];
       if (amt > 0.01) {
-        const from = members.find(m => m.id === debtorId);
-        const to = members.find(m => m.id === creditorId);
+        const from = members.find(m => m.id.toString() === debtorId.toString());
+        const to = members.find(m => m.id.toString() === creditorId.toString());
         if (from && to) {
           settlements.push({ from, to, amount: amt });
         }
@@ -475,9 +477,9 @@ function renderSummary() {
         <span>${s.to.name}</span>
       </div>
       <div style="display:flex; align-items:center; gap:12px;">
-        <span class="settle-amount">₹${s.amount.toFixed(0)}</span>
+        <span class="settle-amount">₹${Math.round(s.amount).toLocaleString('en-IN')}</span>
         <button class="add-btn" style="margin:0; padding:6px 12px; width:auto; font-size:12px; background:#1D9E75; color:white; border:none;" 
-          onclick="recordSettlement('${s.from.id}', '${s.to.id}', ${s.amount}, '${s.from.name}', '${s.to.name}')">
+          onclick="recordSettlement('${s.from.id}', '${s.to.id}', ${Math.round(s.amount)}, '${s.from.name}', '${s.to.name}')">
           Mark Paid
         </button>
       </div>
